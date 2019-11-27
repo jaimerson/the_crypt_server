@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   def create
     user = User.new(user_params)
     if user.save
-      head :ok
+      render json: { username: user.username }, status: :ok
     else
       render json: { errors: user.errors.to_json }, status: :unprocessable_entity
     end
@@ -12,7 +12,7 @@ class UsersController < ApplicationController
     user = User.find_by(username: user_params[:username])
     if user&.authenticate(user_params[:password])
       # Eventually this should return a JSON token for subsequent requests, but ain't nobody got time for that
-      head :ok
+      render json: { username: user.username, public_key: user.public_key }, status: :ok
     else
       render json: { errors: 'Invalid credentials' }, status: :forbidden
     end
@@ -39,6 +39,6 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :password, :public_key)
+    params.permit(:username, :password, :public_key, :firebase_token)
   end
 end
